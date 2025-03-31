@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/ycm/chrono/Rover_proj/build",
+  "command": "/usr/bin/g++ -DCHRONO_DATA_DIR=\\\"/usr/local/lib/cmake/Chrono/../data/\\\" -DCHRONO_VEHICLE_DATA_DIR=\\\"/usr/local/data/vehicle/\\\" -DCH_IGNORE_DEPRECATED -DDEBUG -D_DEBUG -I/home/ycm/chrono/Rover_proj/include/utility -I/home/ycm/chrono/Rover_proj/include/model -I/home/ycm/chrono/Rover_proj/include/controller -isystem /usr/include/eigen3 -isystem /usr/local/include/chrono_vehicle -isystem /usr/local/include/chrono_irrlicht -isystem /usr/include/irrlicht -isystem /usr/local/include/chrono_models/vehicle -isystem /usr/local/include/chrono/collision/bullet -isystem /usr/local/include/chrono/collision/gimpact -isystem /usr/local/include/chrono_thirdparty/HACD -isystem /usr/local/include/chrono_thirdparty/HACDv2 -isystem /usr/local/include/chrono -isystem /usr/local/include/chrono_models/robot -g -std=gnu++17 -march=native -Wint-in-bool-context -Wno-sign-compare -Wno-reorder -Wno-unused-function -Wno-unused-parameter -Wno-unused-result -fopenmp -o CMakeFiles/demo.dir/main.cpp.o -c /home/ycm/chrono/Rover_proj/main.cpp",
+  "file": "/home/ycm/chrono/Rover_proj/main.cpp",
+  "output": "CMakeFiles/demo.dir/main.cpp.o"
+},
+{
+  "directory": "/home/ycm/chrono/Rover_proj/build",
+  "command": "/usr/bin/g++ -DCHRONO_DATA_DIR=\\\"/usr/local/lib/cmake/Chrono/../data/\\\" -DCHRONO_VEHICLE_DATA_DIR=\\\"/usr/local/data/vehicle/\\\" -DCH_IGNORE_DEPRECATED -DDEBUG -D_DEBUG -I/home/ycm/chrono/Rover_proj/include/utility -I/home/ycm/chrono/Rover_proj/include/model -I/home/ycm/chrono/Rover_proj/include/controller -isystem /usr/include/eigen3 -isystem /usr/local/include/chrono_vehicle -isystem /usr/local/include/chrono_irrlicht -isystem /usr/include/irrlicht -isystem /usr/local/include/chrono_models/vehicle -isystem /usr/local/include/chrono/collision/bullet -isystem /usr/local/include/chrono/collision/gimpact -isystem /usr/local/include/chrono_thirdparty/HACD -isystem /usr/local/include/chrono_thirdparty/HACDv2 -isystem /usr/local/include/chrono -isystem /usr/local/include/chrono_models/robot -g -std=gnu++17 -march=native -Wint-in-bool-context -Wno-sign-compare -Wno-reorder -Wno-unused-function -Wno-unused-parameter -Wno-unused-result -fopenmp -o CMakeFiles/demo.dir/src/controller/motionctrl.cpp.o -c /home/ycm/chrono/Rover_proj/src/controller/motionctrl.cpp",
+  "file": "/home/ycm/chrono/Rover_proj/src/controller/motionctrl.cpp",
+  "output": "CMakeFiles/demo.dir/src/controller/motionctrl.cpp.o"
+},
+{
+  "directory": "/home/ycm/chrono/Rover_proj/build",
+  "command": "/usr/bin/g++ -DCHRONO_DATA_DIR=\\\"/usr/local/lib/cmake/Chrono/../data/\\\" -DCHRONO_VEHICLE_DATA_DIR=\\\"/usr/local/data/vehicle/\\\" -DCH_IGNORE_DEPRECATED -DDEBUG -D_DEBUG -I/home/ycm/chrono/Rover_proj/include/utility -I/home/ycm/chrono/Rover_proj/include/model -I/home/ycm/chrono/Rover_proj/include/controller -isystem /usr/include/eigen3 -isystem /usr/local/include/chrono_vehicle -isystem /usr/local/include/chrono_irrlicht -isystem /usr/include/irrlicht -isystem /usr/local/include/chrono_models/vehicle -isystem /usr/local/include/chrono/collision/bullet -isystem /usr/local/include/chrono/collision/gimpact -isystem /usr/local/include/chrono_thirdparty/HACD -isystem /usr/local/include/chrono_thirdparty/HACDv2 -isystem /usr/local/include/chrono -isystem /usr/local/include/chrono_models/robot -g -std=gnu++17 -march=native -Wint-in-bool-context -Wno-sign-compare -Wno-reorder -Wno-unused-function -Wno-unused-parameter -Wno-unused-result -fopenmp -o CMakeFiles/demo.dir/src/model/rover.cpp.o -c /home/ycm/chrono/Rover_proj/src/model/rover.cpp",
+  "file": "/home/ycm/chrono/Rover_proj/src/model/rover.cpp",
+  "output": "CMakeFiles/demo.dir/src/model/rover.cpp.o"
+},
+{
+  "directory": "/home/ycm/chrono/Rover_proj/build",
+  "command": "/usr/bin/g++ -DCHRONO_DATA_DIR=\\\"/usr/local/lib/cmake/Chrono/../data/\\\" -DCHRONO_VEHICLE_DATA_DIR=\\\"/usr/local/data/vehicle/\\\" -DCH_IGNORE_DEPRECATED -DDEBUG -D_DEBUG -I/home/ycm/chrono/Rover_proj/include/utility -I/home/ycm/chrono/Rover_proj/include/model -I/home/ycm/chrono/Rover_proj/include/controller -isystem /usr/include/eigen3 -isystem /usr/local/include/chrono_vehicle -isystem /usr/local/include/chrono_irrlicht -isystem /usr/include/irrlicht -isystem /usr/local/include/chrono_models/vehicle -isystem /usr/local/include/chrono/collision/bullet -isystem /usr/local/include/chrono/collision/gimpact -isystem /usr/local/include/chrono_thirdparty/HACD -isystem /usr/local/include/chrono_thirdparty/HACDv2 -isystem /usr/local/include/chrono -isystem /usr/local/include/chrono_models/robot -g -std=gnu++17 -march=native -Wint-in-bool-context -Wno-sign-compare -Wno-reorder -Wno-unused-function -Wno-unused-parameter -Wno-unused-result -fopenmp -o CMakeFiles/demo.dir/src/utility/Useful.cpp.o -c /home/ycm/chrono/Rover_proj/src/utility/Useful.cpp",
+  "file": "/home/ycm/chrono/Rover_proj/src/utility/Useful.cpp",
+  "output": "CMakeFiles/demo.dir/src/utility/Useful.cpp.o"
+},
+{
+  "directory": "/home/ycm/chrono/Rover_proj/build",
+  "command": "/usr/bin/g++ -DCHRONO_DATA_DIR=\\\"/usr/local/lib/cmake/Chrono/../data/\\\" -DCHRONO_VEHICLE_DATA_DIR=\\\"/usr/local/data/vehicle/\\\" -DCH_IGNORE_DEPRECATED -DDEBUG -D_DEBUG -I/home/ycm/chrono/Rover_proj/include/utility -I/home/ycm/chrono/Rover_proj/include/model -I/home/ycm/chrono/Rover_proj/include/controller -isystem /usr/include/eigen3 -isystem /usr/local/include/chrono_vehicle -isystem /usr/local/include/chrono_irrlicht -isystem /usr/include/irrlicht -isystem /usr/local/include/chrono_models/vehicle -isystem /usr/local/include/chrono/collision/bullet -isystem /usr/local/include/chrono/collision/gimpact -isystem /usr/local/include/chrono_thirdparty/HACD -isystem /usr/local/include/chrono_thirdparty/HACDv2 -isystem /usr/local/include/chrono -isystem /usr/local/include/chrono_models/robot -g -std=gnu++17 -march=native -Wint-in-bool-context -Wno-sign-compare -Wno-reorder -Wno-unused-function -Wno-unused-parameter -Wno-unused-result -fopenmp -o CMakeFiles/demo.dir/src/utility/data_logging.cpp.o -c /home/ycm/chrono/Rover_proj/src/utility/data_logging.cpp",
+  "file": "/home/ycm/chrono/Rover_proj/src/utility/data_logging.cpp",
+  "output": "CMakeFiles/demo.dir/src/utility/data_logging.cpp.o"
+}
+]
