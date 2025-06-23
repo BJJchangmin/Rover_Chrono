@@ -34,6 +34,9 @@ double FeedForward_2nd_order(double command, double J, double B, double K);
 
 double FeedForward_1st_order(double command, double J, double B);
 
+double fst_order_model_gain(double freq1, double w_n);
+
+
 
 
 
