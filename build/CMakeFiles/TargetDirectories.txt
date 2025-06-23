@@ -1,3 +1,0 @@
-/home/ycm/chrono/Rover_proj/build/CMakeFiles/demo.dir
-/home/ycm/chrono/Rover_proj/build/CMakeFiles/edit_cache.dir
-/home/ycm/chrono/Rover_proj/build/CMakeFiles/rebuild_cache.dir
