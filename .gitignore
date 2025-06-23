@@ -1,3 +1,6 @@
 build/
 CMakeFiles/
 *.o
+plot/Soil_Identification
+*.csv
+*.asv

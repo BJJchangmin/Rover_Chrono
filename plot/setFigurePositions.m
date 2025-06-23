@@ -1,4 +1,4 @@
-function setFigurePositions(cols)
+function setFigurePositions(cols,width,height)
     % Set Positions for All Figures
     % cols : 숫자, 열의 수
     % Get all figure handles
@@ -7,8 +7,7 @@ function setFigurePositions(cols)
     % Number of figures
     num_figures = length(fig_handles);
     % Positioning parameters
-    width = 600;
-    height = 400;
+    
     h_margin = 50;  % Increased horizontal margin
     v_margin = 50;   % Vertical margin remains the same
     % Compute the number of rows based on the number of figures and columns

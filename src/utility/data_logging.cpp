@@ -15,7 +15,7 @@ DataLogging<T>::DataLogging()
   model_ptr_ = nullptr;
   traj_ptr_ = nullptr;
   ctrl_ptr_ = nullptr;
-  
+
   for (int i = 0; i < 5; i++)
   {
     if (!fout_[i])
@@ -44,9 +44,10 @@ void DataLogging<T>::init_data()
       fout_[i] << "Time, " ;
       fout_[i] << "sus_pos_ref, sus_pos, sus_vel, sus_torque, ";
       fout_[i] << "steer_pos_ref, steer_pos, steer_vel, steer_torque, ";
-      fout_[i] << "drive_vel_ref, drive_pos, drive_vel, drive_torque ";
+      fout_[i] << "drive_vel_ref, drive_pos, drive_vel, drive_torque, ";
       fout_[i] << "slip_ratio, grf_x, grf_y, grf_z, ";
-      fout_[i] << "grt_x, grt_y, grt_z " << std::endl;
+      fout_[i] << "grt_x, grt_y, grt_z, sinkage, slip_ref, ";
+      fout_[i] << "drive_pid_ctrl, soil_comp_ctrl, steer_pid_ctrl, steer_ff_ctrl, steer_dob_ctrl, alpha " << std::endl;
     }
   }
 
@@ -58,9 +59,10 @@ void DataLogging<T>::init_data()
   }
   else
   {
-    fout_[4] << "trunk_x_vel, trunk_y_vel, trunk_z_vel";
-    fout_[4] << "trunk_x_ang_vel, trunk_y_ang_vel, trunk_z_ang_vel";
-    fout_[4] << "trunk_x_pos, trunk_y_pos, trunk_z_pos, trunk_x_acc, trunk_y_acc, trunk_z_acc" << std::endl;
+    fout_[4] << "trunk_x_vel, trunk_y_vel, trunk_z_vel,";
+    fout_[4] << "trunk_x_ang_vel, trunk_y_ang_vel, trunk_z_ang_vel,";
+    fout_[4] << "trunk_x_pos, trunk_y_pos, trunk_z_pos, trunk_x_acc, trunk_y_acc, trunk_z_acc,";
+    fout_[4] << "trunk_x_vel_ref, trunk_y_vel_ref, trunk_yaw_rate_ref" << std::endl;
 
   }
 }
@@ -98,8 +100,15 @@ void DataLogging<T>::save_data()
       fout_[i] << model_ptr_->contact_force_[i][2] << ","; // grf z
       fout_[i] << model_ptr_->contact_torque_[i][0] << ","; // grt x
       fout_[i] << model_ptr_->contact_torque_[i][1] << ","; // grt y
-      fout_[i] << model_ptr_->contact_torque_[i][2]; // grt z
-
+      fout_[i] << model_ptr_->contact_torque_[i][2] << ","; // grt z
+      fout_[i] << model_ptr_->sinkage_[i] <<","; // Sinkage
+      fout_[i] << ctrl_ptr_->slip_ref_ << ","; // slip ref
+      fout_[i] << ctrl_ptr_->drive_pid_ctrl_[i] << ","; // drive pid ctrl
+      fout_[i] << ctrl_ptr_->soil_compensation_[i] << ","; // soil comp ctrl
+      fout_[i] << ctrl_ptr_->steer_pid_ctrl_[i]<< ","; // steer pid ctrl
+      fout_[i] << ctrl_ptr_->steer_ff_ctrl_[i]<< ","; // steer ff ctrl
+      fout_[i] << ctrl_ptr_->steer_dob_ctrl_[i] << ","; // steer dob ctrl
+      fout_[i] << model_ptr_->tire_alpha_[i]; // tire slip angle
 
 
 
@@ -127,7 +136,10 @@ void DataLogging<T>::save_data()
     fout_[4] << model_ptr_->body_pos_[2] << ","; // trunk z pos
     fout_[4] << model_ptr_->body_acc_[0] << ","; // trunk x acc
     fout_[4] << model_ptr_->body_acc_[1] << ","; // trunk y acc
-    fout_[4] << model_ptr_->body_acc_[2] ; // trunk z acc
+    fout_[4] << model_ptr_->body_acc_[2] << ","; // trunk z acc
+    fout_[4] << traj_ptr_->traj_body_vel_[0] << ","; // trunk x vel ref
+    fout_[4] << traj_ptr_->traj_body_vel_[1] << ","; // trunk y vel ref
+    fout_[4] << traj_ptr_->traj_body_omega_[2]; // trunk z ang vel ref
 
     // ! Don't remove the newline
     fout_[4] << endl;
