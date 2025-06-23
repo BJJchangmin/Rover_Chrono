@@ -68,7 +68,8 @@ ChVisualSystem::Type vis_type = ChVisualSystem::Type::VSG;
 bool output = false;
 
 // SCM grid spacing
-double mesh_resolution = 0.02;
+double mesh_resolution = 0.01;
+
 
 // Enable/disable bulldozing effects
 bool enable_bulldozing = true;
@@ -97,12 +98,12 @@ class MySoilParams : public vehicle::SCMTerrain::SoilParametersCallback {
                      double& Janosi_shear,
                      double& elastic_K,
                      double& damping_R) override {
-        Bekker_Kphi = 0.82e6;
-        Bekker_Kc = 0.14e4;
+        Bekker_Kphi = 814000; //0.82e6
+        Bekker_Kc = 1370; //0.14e4
         Bekker_n = 1.0;
-        Mohr_cohesion = 0.017e4;
-        Mohr_friction = 35.0;
-        Janosi_shear = 1.78e-2; //단위가 센티미터
+        Mohr_cohesion = 800; //0.017e4
+        Mohr_friction = 37.2;
+        Janosi_shear = 0.0383; //단위가 센티미터? or 미터 1.78e-2
         elastic_K = 2e8;
         damping_R = 3e4;
     }
@@ -171,7 +172,8 @@ int main(int argc, char* argv[]) {
     // Create a Chrono physical system and associated collision system
     ChSystemSMC sys;
     sys.SetCollisionSystemType(ChCollisionSystem::Type::BULLET);
-    sys.SetGravitationalAcceleration(ChVector3d(0, 0, -9.81));
+    // sys.SetGravitationalAcceleration(ChVector3d(0, 0, -1.67));
+    sys.SetGravitationalAcceleration(ChVector3d(0, 0, -3));
 
     // Initialize output
     const std::string out_dir = GetChronoOutputPath() + "SCM_DEF_SOIL";
@@ -193,8 +195,12 @@ int main(int argc, char* argv[]) {
     if (use_custom_mat)
         viper.SetWheelContactMaterial(CustomWheelMaterial(ChContactMethod::SMC));
 
-    viper.Initialize(ChFrame<>(ChVector3d(-1, 0, 0), QUNIT));
-    // viper.Initialize(ChFrame<>(ChVector3d(-1, 0, 1), QUNIT));
+    double Z_rotation_angle_degrees = 45.0;
+    ChQuaternion<> initial_rotation = QuatFromAngleZ(Z_rotation_angle_degrees * CH_DEG_TO_RAD);
+
+
+    // viper.Initialize(ChFrame<>(ChVector3d(-1, 0, 0.001), initial_rotation));
+    viper.Initialize(ChFrame<>(ChVector3d(-1, 0, 0.001), QUNIT));
 
     // Get wheels and bodies to set up SCM patches
     auto Wheel_1 = viper.GetWheel(ViperWheelID::V_LF)->GetBody();
@@ -224,7 +230,7 @@ int main(int argc, char* argv[]) {
     // Use a regular grid:
     double length = 14;
     double width = 4;
-    terrain.Initialize(length, width, mesh_resolution);
+    terrain.Initialize(length, width, mesh_resolution); //! This Part Choose Other callback function for height map
 
     // Set the soil terramechanical parameters
     if (var_params) {
@@ -330,15 +336,15 @@ int main(int argc, char* argv[]) {
         //! Sensor Data를 사용하는 부분. 이 부분은 추후에 함수로 빼야함
 
         double Drive_Gear_ratio = 1; //! Sensor는 휠단을 받아온다
-        double Steer_Gear_ratio = 200;
+        double Steer_Gear_ratio = 1;
         double Sus_Gear_ratio = 400;
 
         auto chassisPos = viper.GetChassisPos();
         auto chassisRot = viper.GetChassisRot();
-        auto chassisVel = viper.GetChassisVel();
-        auto chassisAngVel = viper.GetChassisRotVel();
-        auto chassisAcc = viper.GetChassisAcc();
-        auto chassisAngAcc = viper.GetChassisRotAcc();
+        auto chassisVel_global = viper.GetChassisVel();
+        auto chassisAngVel_global = viper.GetChassisRotVel();
+        auto chassisAcc_global = viper.GetChassisAcc();
+        auto chassisAngAcc_global = viper.GetChassisRotAcc();
         auto FLwheel_vel = viper.FLWheelvel(); // lift, steer, drive 순서
         auto FRwheel_vel = viper.FRWheelvel();
         auto RLwheel_vel = viper.RLWheelvel();
@@ -347,14 +353,72 @@ int main(int argc, char* argv[]) {
         auto FRwheel_pos = viper.FRWheelpos();
         auto RLwheel_pos = viper.RLWheelpos();
         auto RRwheel_pos = viper.RRWheelpos();
-        auto FLwheel_grf = viper.GetWheelAppliedForce(V_LF);
-        auto FRwheel_grf = viper.GetWheelAppliedForce(V_RF);
-        auto RLwheel_grf = viper.GetWheelAppliedForce(V_LB);
-        auto RRwheel_grf = viper.GetWheelAppliedForce(V_RB);
+        auto FLwheel_grf_global = viper.GetWheelAppliedForce(V_LF);
+        auto FRwheel_grf_global = viper.GetWheelAppliedForce(V_RF);
+        auto RLwheel_grf_global = viper.GetWheelAppliedForce(V_LB);
+        auto RRwheel_grf_global = viper.GetWheelAppliedForce(V_RB);
         auto FLwheel_grt = viper.GetWheelContactTorque(V_LF);
         auto FRwheel_grt = viper.GetWheelContactTorque(V_RF);
         auto RLwheel_grt = viper.GetWheelContactTorque(V_LB);
         auto RRwheel_grt = viper.GetWheelContactTorque(V_RB);
+
+        auto FLwheel_linvel_global = viper.GetWheel(ViperWheelID::V_LF)->GetLinVel();
+        auto FRwheel_linvel_global = viper.GetWheel(ViperWheelID::V_RF)->GetLinVel();
+        auto RLwheel_linvel_global = viper.GetWheel(ViperWheelID::V_LB)->GetLinVel();
+        auto RRwheel_linvel_global = viper.GetWheel(ViperWheelID::V_RB)->GetLinVel();
+
+        auto q_wheel_FL = viper.GetWheel(ViperWheelID::V_LF)->GetRot();
+        auto q_wheel_FR = viper.GetWheel(ViperWheelID::V_RF)->GetRot();
+        auto q_wheel_RL = viper.GetWheel(ViperWheelID::V_LB)->GetRot();
+        auto q_wheel_RR = viper.GetWheel(ViperWheelID::V_RB)->GetRot();
+
+        auto FLwheel_loc = viper.GetWheel(ViperWheelID::V_LF)->GetPos();
+        FLwheel_loc[0] = FLwheel_loc[0] + 0;
+        auto ter_FL = terrain.GetNodeInfo(FLwheel_loc);
+
+        auto FRwheel_loc = viper.GetWheel(ViperWheelID::V_RF)->GetPos();
+        auto ter_FR = terrain.GetNodeInfo(FRwheel_loc);
+
+        auto RLwheel_loc = viper.GetWheel(ViperWheelID::V_LB)->GetPos();
+        auto ter_RL = terrain.GetNodeInfo(RLwheel_loc);
+
+        auto RRwheel_loc = viper.GetWheel(ViperWheelID::V_RB)->GetPos();
+        auto ter_RR = terrain.GetNodeInfo(RRwheel_loc);
+
+        // Translation for Body Frame
+        auto chassisVel = chassisRot.RotateBack(chassisVel_global);
+        auto chassisAngVel = chassisRot.RotateBack(chassisAngVel_global);
+        auto chassisAcc = chassisRot.RotateBack(chassisAcc_global);
+        auto chassisAngAcc = chassisRot.RotateBack(chassisAngAcc_global);
+
+        // ZYX 순서 (Yaw, Pitch, Roll)로 오일러 각 얻기 시도
+        ChVector3d euler_ZYX = chassisRot.GetCardanAnglesZYX();
+        double roll_rad = euler_ZYX.x();   // Z축 회전 (Yaw)
+        double pitch_rad = euler_ZYX.y(); // Y축 회전 (Pitch)
+        double yaw_rad = euler_ZYX.z();  // X축 회전 (Roll)
+
+        // auto FLwheel_grf = chassisRot.RotateBack(FLwheel_grf_global);
+        // auto FRwheel_grf = chassisRot.RotateBack(FRwheel_grf_global);
+        // auto RLwheel_grf = chassisRot.RotateBack(RLwheel_grf_global);
+        // auto RRwheel_grf = chassisRot.RotateBack(RRwheel_grf_global);
+
+        // Translation for Wheel Frame
+
+        auto FLwheel_grf = q_wheel_FL.RotateBack(FLwheel_grf_global);
+        auto FRwheel_grf = q_wheel_FR.RotateBack(FRwheel_grf_global);
+        auto RLwheel_grf = q_wheel_RL.RotateBack(RLwheel_grf_global);
+        auto RRwheel_grf = q_wheel_RR.RotateBack(RRwheel_grf_global);
+
+        auto FLwheel_linvel = q_wheel_FL.RotateBack(FLwheel_linvel_global);
+        auto FRwheel_linvel = q_wheel_FR.RotateBack(FRwheel_linvel_global);
+        auto RLwheel_linvel = q_wheel_RL.RotateBack(RLwheel_linvel_global);
+        auto RRwheel_linvel = q_wheel_RR.RotateBack(RRwheel_linvel_global);
+
+        model_ptr->wheel_lin_vel_[0] = Eigen::Vector3d(FLwheel_linvel.x()*cos(FLwheel_pos[2]) + FLwheel_linvel.z()*sin(FLwheel_pos[2]), -FLwheel_linvel.y(), FLwheel_linvel.z());
+        model_ptr->wheel_lin_vel_[1] = Eigen::Vector3d(FRwheel_linvel.x()*cos(FRwheel_pos[2]) + FRwheel_linvel.z()*sin(FRwheel_pos[2]), -FRwheel_linvel.y(), FRwheel_linvel.z());
+        model_ptr->wheel_lin_vel_[2] = Eigen::Vector3d(RLwheel_linvel.x()*cos(RLwheel_pos[2]) + RLwheel_linvel.z()*sin(RLwheel_pos[2]), -RLwheel_linvel.y(), RLwheel_linvel.z());
+        model_ptr->wheel_lin_vel_[3] = Eigen::Vector3d(RRwheel_linvel.x()*cos(RRwheel_pos[2]) + RRwheel_linvel.z()*sin(RRwheel_pos[2]), -RRwheel_linvel.y(), RRwheel_linvel.z());
+
 
 
         model_ptr->body_pos_ = Eigen::Vector3d(chassisPos.x(), chassisPos.y(), chassisPos.z());
@@ -368,37 +432,79 @@ int main(int argc, char* argv[]) {
         model_ptr->joint_vel_act_[1] = Eigen::Vector3d(FRwheel_vel[0]/Sus_Gear_ratio, FRwheel_vel[1]/Steer_Gear_ratio, FRwheel_vel[2]/Drive_Gear_ratio);
         model_ptr->joint_vel_act_[2] = Eigen::Vector3d(-RLwheel_vel[0]/Sus_Gear_ratio, RLwheel_vel[1]/Steer_Gear_ratio, RLwheel_vel[2]/Drive_Gear_ratio);
         model_ptr->joint_vel_act_[3] = Eigen::Vector3d(RRwheel_vel[0]/Sus_Gear_ratio, RRwheel_vel[1]/Steer_Gear_ratio, RRwheel_vel[2]/Drive_Gear_ratio);
-        model_ptr->joint_pos_act_[0] = Eigen::Vector3d(-FLwheel_pos[0]/Sus_Gear_ratio, FLwheel_pos[1]/Steer_Gear_ratio, FLwheel_pos[2]/Drive_Gear_ratio);
-        model_ptr->joint_pos_act_[1] = Eigen::Vector3d(FRwheel_pos[0]/Sus_Gear_ratio, FRwheel_pos[1]/Steer_Gear_ratio, FRwheel_pos[2]/Drive_Gear_ratio);
-        model_ptr->joint_pos_act_[2] = Eigen::Vector3d(-RLwheel_pos[0]/Sus_Gear_ratio, RLwheel_pos[1]/Steer_Gear_ratio, RLwheel_pos[2]/Drive_Gear_ratio);
-        model_ptr->joint_pos_act_[3] = Eigen::Vector3d(RRwheel_pos[0]/Sus_Gear_ratio, RRwheel_pos[1]/Steer_Gear_ratio, RRwheel_pos[2]/Drive_Gear_ratio);
+        model_ptr->joint_pos_act_[0] = Eigen::Vector3d(-FLwheel_pos[0]/Sus_Gear_ratio, (FLwheel_pos[1])/Steer_Gear_ratio-yaw_rad, FLwheel_pos[2]/Drive_Gear_ratio);
+        model_ptr->joint_pos_act_[1] = Eigen::Vector3d(FRwheel_pos[0]/Sus_Gear_ratio, (FRwheel_pos[1])/Steer_Gear_ratio-yaw_rad, FRwheel_pos[2]/Drive_Gear_ratio);
+        model_ptr->joint_pos_act_[2] = Eigen::Vector3d(-RLwheel_pos[0]/Sus_Gear_ratio, (RLwheel_pos[1])/Steer_Gear_ratio-yaw_rad, RLwheel_pos[2]/Drive_Gear_ratio);
+        model_ptr->joint_pos_act_[3] = Eigen::Vector3d(RRwheel_pos[0]/Sus_Gear_ratio, (RRwheel_pos[1])/Steer_Gear_ratio-yaw_rad, RRwheel_pos[2]/Drive_Gear_ratio);
+
+
+
 
         //! 확인해야 하는 부분 : GRF 부호, Torque 부호 및 좌표계로 힘 좌표계 생각해야함
-        model_ptr->contact_force_[0] = Eigen::Vector3d(FLwheel_grf.x(), FLwheel_grf.y(), FLwheel_grf.z());
-        model_ptr->contact_force_[1] = Eigen::Vector3d(FRwheel_grf.x(), FRwheel_grf.y(), FRwheel_grf.z());
-        model_ptr->contact_force_[2] = Eigen::Vector3d(RLwheel_grf.x(), RLwheel_grf.y(), RLwheel_grf.z());
-        model_ptr->contact_force_[3] = Eigen::Vector3d(RRwheel_grf.x(), RRwheel_grf.y(), RRwheel_grf.z());
+
+        //* Rover Frame GRF
+        // model_ptr->contact_force_[0] = Eigen::Vector3d(FLwheel_grf.x(), FLwheel_grf.y(), FLwheel_grf.z());
+        // model_ptr->contact_force_[1] = Eigen::Vector3d(FRwheel_grf.x(), FRwheel_grf.y(), FRwheel_grf.z());
+        // model_ptr->contact_force_[2] = Eigen::Vector3d(RLwheel_grf.x(), RLwheel_grf.y(), RLwheel_grf.z());
+        // model_ptr->contact_force_[3] = Eigen::Vector3d(RRwheel_grf.x(), RRwheel_grf.y(), RRwheel_grf.z());
+
+        //* Wheel Frame GRF
+        model_ptr->contact_force_[0] = Eigen::Vector3d(FLwheel_grf.x()*cos(FLwheel_pos[2]) + FLwheel_grf.z()*sin(FLwheel_pos[2]), -FLwheel_grf.y(), -FLwheel_grf.x()*sin(FLwheel_pos[2]) + FLwheel_grf.z()*cos(FLwheel_pos[2]));
+        model_ptr->contact_force_[1] = Eigen::Vector3d(FRwheel_grf.x()*cos(FRwheel_pos[2]) + FRwheel_grf.z()*sin(FRwheel_pos[2]), -FRwheel_grf.y(), -FRwheel_grf.x()*sin(FRwheel_pos[2]) + FRwheel_grf.z()*cos(FRwheel_pos[2]));
+        model_ptr->contact_force_[2] = Eigen::Vector3d(RLwheel_grf.x()*cos(RLwheel_pos[2]) + RLwheel_grf.z()*sin(RLwheel_pos[2]), -RLwheel_grf.y(), -RLwheel_grf.x()*sin(RLwheel_pos[2]) + RLwheel_grf.z()*cos(RLwheel_pos[2]));
+        model_ptr->contact_force_[3] = Eigen::Vector3d(RRwheel_grf.x()*cos(RRwheel_pos[2]) + RRwheel_grf.z()*sin(RRwheel_pos[2]), -RRwheel_grf.y(), -RRwheel_grf.x()*sin(RRwheel_pos[2]) + RRwheel_grf.z()*cos(RRwheel_pos[2]));
+
+
         model_ptr->contact_torque_[0] = Eigen::Vector3d(FLwheel_grt.x(), FLwheel_grt.y(), FLwheel_grt.z());
         model_ptr->contact_torque_[1] = Eigen::Vector3d(FRwheel_grt.x(), FRwheel_grt.y(), FRwheel_grt.z());
         model_ptr->contact_torque_[2] = Eigen::Vector3d(RLwheel_grt.x(), RLwheel_grt.y(), RLwheel_grt.z());
         model_ptr->contact_torque_[3] = Eigen::Vector3d(RRwheel_grt.x(), RRwheel_grt.y(), RRwheel_grt.z());
 
+        model_ptr->sinkage_[0] = ter_FL.sinkage;
+        model_ptr->sinkage_[1] = ter_FR.sinkage;
+        model_ptr->sinkage_[2] = ter_RL.sinkage;
+        model_ptr->sinkage_[3] = ter_RR.sinkage;
+
 
         // std::cout << "check" << model_ptr->contact_force_[0]  << std::endl;
 
-        rover.BodyTrajectory(sys.GetChTime());
-        rover.MotorTrajectory(sys.GetChTime());
-        motion_ctrl.drive_motor_control();
 
-        for (int i = 0; i < 4; i++)
+
+        if (sys.GetChTime() >=1)
         {
-          driver->SetDriveMotorTorque(ctrl_ptr->drive_torque_[i],i);// FL(0), FR(1), RL(2), RR(3)
-        //   driver->SetSteerMotorTorque(ctrl_ptr->steer_torque_[i],i);// FL(0), FR(1), RL(2), RR(3)
-        //   driver->SetSusMotorTorque(ctrl_ptr->sus_torque_[i],i);// FL(0), FR(1), RL(2), RR(3)
-        //   driver->SetDriveMotorTorque(5,i);
-          driver->SetSteerMotorTorque(5,i);
-          driver->SetSusMotorTorque(pow(-1,i)*5,i);
+          rover.BodyTrajectory(sys.GetChTime());
+          motion_ctrl.Kin_Low_level_ctrl();
+
+        //   motion_ctrl.longitudinal_vel_ctrl();
+        //   motion_ctrl.Lateral_vel_ctrl(sys.GetChTime());
+
+        //   motion_ctrl.drive_motor_control();
+        //   motion_ctrl.steer_motor_control();
+
+
+
+          for (int i = 0; i < 4; i++)
+          {
+            //! Drive Torque Mode, Steer, Sus fixed 되어 있는데 viper.cpp에서 설정해줄 수 있음
+            driver->SetDriveMotorTorque(ctrl_ptr->drive_torque_[i],i);// FL(0), FR(1), RL(2), RR(3)
+            driver->SetSteerMotorTorque(ctrl_ptr->steer_torque_[i],i);// FL(0), FR(1), RL(2), RR(3)
+            // driver->SetSusMotorTorque(ctrl_ptr->sus_torque_[i],i);// FL(0), FR(1), RL(2), RR(3)
+            // driver->SetDriveMotorTorque(5,i);
+          }
+
         }
+
+        else
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                driver->SetDriveMotorTorque(0,i);
+                driver->SetSteerMotorTorque(0,i);
+                // driver->SetSusMotorTorque(0,i);
+            }
+        }
+
+
 
         std::cout << "Time: " << sys.GetChTime() << std::endl;
 
